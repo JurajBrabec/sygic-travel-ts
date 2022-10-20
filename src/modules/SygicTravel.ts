@@ -1,13 +1,26 @@
 export default class SygicTravel implements ISygicTravel {
-  error: string | null;
+  places: [];
+  routes: [];
+  tripId: string | null;
+  tripList: TripList | null;
+  user: User | null;
   constructor() {
-    this.error = null;
+    this.places = [];
+    this.routes = [];
+    this.tripId = null;
+    this.tripList = null;
+    this.user = null;
   }
-  getTrips(): Trip[] | null {
-    console.log('SygicTravel');
-    return null;
+  selectDay(dayIndex: number): Promise<[TripDay]> {
+    return Promise.reject(new Error('not implemented'));
   }
-  getUser(): User | null {
-    return null;
+  getTripList(): Promise<TripList> {
+    return Promise.reject(new Error('not implemented'));
+  }
+  selectTrip(tripId: string): Promise<Trip> {
+    return Promise.reject(new Error('not implemented'));
+  }
+  getUser(): Promise<User> {
+    return Promise.reject(new Error('not implemented'));
   }
 }

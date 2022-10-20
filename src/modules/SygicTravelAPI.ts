@@ -20,12 +20,16 @@ export default class SygicTravelAPI
     this.keys = keys;
     return keys;
   }
-  getTrips(): Trip[] | null {
-    console.log('SygicTravel API');
-    return [];
+  getTripList(): Promise<TripList> {
+    return super.getTripList();
   }
-  getUser(): User | null {
-    console.log('SygicTravel API');
-    return { name: '' };
+  getUser(): Promise<User> {
+    return super.getUser();
+  }
+  selectDay(dayIndex: number): Promise<[TripDay]> {
+    return super.selectDay(dayIndex);
+  }
+  selectTrip(tripId: string): Promise<Trip> {
+    return super.selectTrip(tripId);
   }
 }
