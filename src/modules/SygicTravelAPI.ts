@@ -26,7 +26,7 @@ export default class SygicTravelAPI
   getUser(): Promise<User> {
     return super.getUser();
   }
-  selectDay(dayIndex: number): Promise<[TripDay]> {
+  selectDay(dayIndex: number): Promise<[TripDay, Promise<Places>]> {
     return super.selectDay(dayIndex);
   }
   selectTrip(tripId: string): Promise<Trip> {

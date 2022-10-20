@@ -1,3 +1,71 @@
+type Place = {
+  id: string;
+  level: string;
+  type: string;
+  rating: number;
+  rating_local: number;
+  quadkey: string;
+  location: { lat: number; lng: number };
+  bounding_box: { south: number; west: number; north: number; east: number };
+  name: string;
+  name_suffix: string;
+  name_local: string;
+  name_en: string;
+  name_translated: string | null;
+  url: string;
+  price: number | null;
+  duration_estimate: number;
+  marker: string;
+  class: { slug: string; name: string };
+  categories: string[];
+  tag_keys: string[];
+  parents: [];
+  perex: string;
+  customer_rating: number | null;
+  hotel_star_rating: number | null;
+  hotel_star_rating_unofficial: number | null;
+  thumbnail_url: string;
+  meta: { tier: number; edited_at: string; is_outdated: boolean };
+  tags: [];
+  area: number;
+  address: string;
+  address_is_approximated: boolean;
+  address_details: {
+    country: string;
+    state: string;
+    province: string | null;
+    city: string;
+    postcode: string | null;
+    district: string | null;
+    street: string | null;
+    place: string | null;
+    number: string | null;
+  };
+  admission: string | null;
+  email: string | null;
+  timezone: string;
+  opening_hours_note: string | null;
+  is_deleted: boolean;
+  phone: string | null;
+  description: {
+    text: string;
+    provider: string | null;
+    translation_provider: string;
+    link: string | null;
+    language_id: string;
+  };
+  origin_custom_poi: string | null;
+  opening_hours_raw: string;
+  media_count: number;
+  main_media: { usage: {}; media: [] };
+  references: [];
+  external_ids: [];
+  collection_count: number;
+  satellite: { image_url: string; bounding_box: {} };
+  attributes: {} | null;
+  has_shape_geometry: boolean;
+};
+type Places = Place[];
 type TransportMode =
   | 'boat'
   | 'bus'
@@ -18,14 +86,14 @@ type Transport = {
   waypoints: [];
   route_id: string | null;
 };
-type Place = {
+type Point = {
   place_id: string;
   start_time: number | null;
   duration: number | null;
   note: string | null;
   transport_from_previous: Transport | null;
 };
-type Itinerary = Place[];
+type Itinerary = Point[];
 
 type TripDay = {
   itinerary: Itinerary;
@@ -94,12 +162,12 @@ type User = {
 };
 
 interface ISygicTravel {
-  places: [];
+  places: Map<string, Place>;
   routes: [];
   tripId: string | null;
   tripList: TripList | null;
   user: User | null;
-  selectDay(dayIndex: number): Promise<[TripDay]>;
+  selectDay(dayIndex: number): Promise<[TripDay, Promise<Places>]>;
   getTripList(): Promise<TripList>;
   getUser(): Promise<User>;
   selectTrip(tripId: string): Promise<Trip>;
