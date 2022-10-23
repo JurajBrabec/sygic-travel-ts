@@ -24,14 +24,18 @@ export default class SygicTravelHAR
       if (!this.entries) reject(new Error('No entries'));
       this.getTripId();
       this.getPlaces();
+      this.getPaths();
       resolve();
     });
   }
   private getTripId(): void {
     this.tripId = this.entries
       ? this.entries
-          .filter(({ request }) => request.url.includes('/trips/'))
-          .filter(({ request }) => !request.url.includes('/trips/list?'))
+          .filter(
+            ({ request }) =>
+              request.url.includes('/trips/') &&
+              !request.url.includes('/trips/list?')
+          )
           .pop()
           ?.request.url.split('/')
           .pop() || null
@@ -44,6 +48,16 @@ export default class SygicTravelHAR
         .map(({ response }) => JSON.parse(response.content.text).data.places)
         .flat()
         .forEach(place => this.places.set(place.id, place));
+  }
+  private getPaths(): void {
+    if (this.entries && this.tripId) {
+      this.paths.set(
+        this.tripId,
+        this.entries
+          .filter(({ request }) => request.url.includes('/directions/path'))
+          .map(({ response }) => JSON.parse(response.content.text).data.path)
+      );
+    }
   }
   getTripList(): Promise<TripList> {
     return new Promise((resolve, reject) => {
@@ -71,7 +85,9 @@ export default class SygicTravelHAR
       this.user ? resolve(this.user) : reject(new Error('No user'));
     });
   }
-  selectDay(dayIndex: number): Promise<[TripDay, Promise<Places>]> {
+  selectDay(
+    dayIndex: number
+  ): Promise<[TripDay, Promise<Places>, Promise<Paths>]> {
     return new Promise((resolve, reject) => {
       if (!this.tripId) return reject(new Error('No trip'));
       this.selectTrip(this.tripId)
@@ -83,9 +99,15 @@ export default class SygicTravelHAR
             const result = placeIds
               .map(placeId => this.places.get(placeId))
               .filter(p => p);
+            if (!result) return reject(new Error('No places'));
             resolve(result as Places);
           });
-          resolve([day, places]);
+          const paths: Promise<Paths> = new Promise((resolve, reject) => {
+            const result = this.paths.get(this.tripId || '');
+            if (!result) return reject(new Error('No paths'));
+            resolve(result[dayIndex] as Paths);
+          });
+          resolve([day, places, paths]);
         })
         .catch(error => reject(error));
     });
@@ -104,33 +126,3 @@ export default class SygicTravelHAR
     });
   }
 }
-
-import fs from 'fs';
-const HAR = fs.readFileSync('c:/users/juraj/downloads/demo.har', {
-  encoding: 'utf8',
-});
-
-const travel = new SygicTravelHAR();
-
-travel
-  .read(HAR)
-  .then(() => travel.getTripList())
-  .then(tripList => {
-    console.log('trips', tripList);
-    return travel.getUser();
-  })
-  .then(user => {
-    console.log('user', user);
-    return travel.selectTrip('62cc2df4954c4');
-  })
-  .then(trip => {
-    console.log('trip', trip);
-    return travel.selectDay(2);
-  })
-  .then(([day, places]) => {
-    day.itinerary.map(i => console.log(i));
-    places.then(console.log);
-  })
-  .catch(error => {
-    console.error('Error: ', error);
-  });
