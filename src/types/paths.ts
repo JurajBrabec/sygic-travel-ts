@@ -43,3 +43,13 @@ type Path = {
   directions: Direction[];
 };
 type Paths = Path[];
+
+type WayPoint = {
+  arrive_at: string | null;
+  avoid: [];
+  depart_at: string | null;
+  destination: Loc | null;
+  origin: Loc | null;
+  modes: string[] | null;
+  waypoints: [];
+};

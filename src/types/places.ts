@@ -66,5 +66,6 @@ type Place = {
   satellite: { image_url: string; bounding_box: {} };
   attributes: {} | null;
   has_shape_geometry: boolean;
+  marker_url?: string | undefined;
 };
 type Places = Place[];
