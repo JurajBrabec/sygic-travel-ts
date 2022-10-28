@@ -17,8 +17,6 @@ const AUTH_BODY: AuthBody = {
   password: '',
 };
 
-const MARKERS_URL = 'https://cdn.travel.sygic.com/web/markers/';
-
 export default class SygicTravelAPI
   extends SygicTravel
   implements ISygicTravelAPI
@@ -30,15 +28,6 @@ export default class SygicTravelAPI
     if (options) {
       this.tokens = options;
     }
-  }
-  protected addPlace(place: Place): void {
-    this.places.set(place.id, {
-      ...place,
-      marker_url:
-        MARKERS_URL +
-        (place.marker === 'default' ? 'home' : place.marker) +
-        '.png',
-    });
   }
   protected fetch(url: string, options?: RequestInit): Promise<Response> {
     return new Promise((resolve, reject) => {
@@ -203,29 +192,6 @@ export default class SygicTravelAPI
         });
     });
   }
-  getTripList(): Promise<TripList> {
-    return new Promise((resolve, reject) => {
-      this.fetchTripList()
-        .then(() => {
-          if (!this.tripList) return reject(new Error('No trip list'));
-          resolve(this.tripList);
-        })
-        .catch(error => {
-          reject(error);
-        });
-    });
-  }
-  getUser(): Promise<User> {
-    return new Promise((resolve, reject) => {
-      this.fetchUser()
-        .then(() => {
-          resolve(this.user as User);
-        })
-        .catch(error => {
-          reject(error);
-        });
-    });
-  }
   selectDay(
     dayIndex: number
   ): Promise<[TripDay, () => Promise<Places>, () => Promise<Paths>]> {
@@ -239,18 +205,6 @@ export default class SygicTravelAPI
         this.getPlaces(day.itinerary.map(({ place_id }) => place_id));
       const paths = () => this.getPaths(dayIndex);
       resolve([day, places, paths]);
-    });
-  }
-  selectTrip(tripId: TripId): Promise<Trip> {
-    return new Promise((resolve, reject) => {
-      this.fetchTrip(tripId)
-        .then(() => {
-          this.tripId = tripId;
-          return resolve(this.trips.get(tripId) as Trip);
-        })
-        .catch(error => {
-          reject(error);
-        });
     });
   }
 }
